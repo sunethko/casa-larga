@@ -26,7 +26,10 @@ export function buildSheet({ frame, portrait, labelScale = 1, anisotropy = 8, pl
 
   const group = new THREE.Group();
   const lines = {};
-  const seg = (key, x0, n0, x1, n1, y) => (lines[key] ??= []).push(x0, y, -n0, x1, y, -n1);
+  const seg = (key, x0, n0, x1, n1, y) => {
+    if (!lines[key]) lines[key] = [];
+    lines[key].push(x0, y, -n0, x1, y, -n1);
+  };
   const FLOOR = 0.004, OUT = GROUND_Y + 0.004;
   const disposables = [];
 

@@ -53,7 +53,10 @@ export class RectSolid {
 
     // ---- faces -------------------------------------------------------
     const buckets = {};
-    const bucket = (key) => (buckets[key] ??= { p: [], n: [], uv: [], idx: [] });
+    const bucket = (key) => {
+      if (!buckets[key]) buckets[key] = { p: [], n: [], uv: [], idx: [] };
+      return buckets[key];
+    };
     const quad = (key, a, b, c, d, n) => {
       const B = bucket(key);
       const base = B.p.length / 3;
@@ -95,7 +98,10 @@ export class RectSolid {
     // One or three filled: a real corner. Two filled side by side: a flat
     // surface runs through, no edge. Two filled diagonally: two corners touch.
     const edges = {};
-    const pushEdge = (key, a, b) => (edges[key] ??= []).push(a[0], a[1], a[2], b[0], b[1], b[2]);
+    const pushEdge = (key, a, b) => {
+      if (!edges[key]) edges[key] = [];
+      edges[key].push(a[0], a[1], a[2], b[0], b[1], b[2]);
+    };
     const axes = [
       { n: [nx, ny, nz], c: [xs, ys, zs], perm: [0, 1, 2] }, // along x
       { n: [ny, nz, nx], c: [ys, zs, xs], perm: [1, 2, 0] }, // along y
