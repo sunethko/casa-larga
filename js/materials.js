@@ -9,7 +9,7 @@
 // is what makes the cut walls of the plan black.
 
 import * as THREE from 'three';
-import { PAPER, INK, ROOMS, CUT_PLAN } from './plan.js';
+import { PAPER, INK, GROUND_ROOMS, CUT_PLAN } from './plan.js';
 
 // ---- the cut -----------------------------------------------------------
 // One clipping plane shared by everything. Keeps what is below `constant`.
@@ -19,41 +19,70 @@ export const CUT = new THREE.Plane(new THREE.Vector3(0, -1, 0), CUT_PLAN);
 const raw = (hex) => new THREE.Color().setStyle(hex, THREE.LinearSRGBColorSpace); // keep sRGB numbers as they are
 const IDLE = -1e4;
 const SOFT = 1.1; // metres over which ink turns into material behind the front
+const MAX_ROOMS = 8;
 
-const sweepOf = (r) => {
+export const sweepOf = (r) => {
   const dx = r.dir[0], dz = -r.dir[1];
   const ox = dx > 0 ? r.x0 : dx < 0 ? r.x1 : (r.x0 + r.x1) / 2;
   const oz = dz < 0 ? -r.n0 : dz > 0 ? -r.n1 : -(r.n0 + r.n1) / 2;
   return { ox, oz, dx, dz, len: Math.abs(dx) * (r.x1 - r.x0) + Math.abs(dz) * (r.n1 - r.n0) };
 };
-const SW = ROOMS.map(sweepOf);
+
+let currentRooms = [...GROUND_ROOMS];
 
 export const U = {
   uPaper: { value: raw(PAPER) },
   uInkCol: { value: raw(INK) },
-  uRoomBox: { value: ROOMS.map((r) => new THREE.Vector4(r.x0, -r.n1, r.x1, -r.n0)) },
-  uRoomSweep: { value: SW.map((s) => new THREE.Vector4(s.ox, s.oz, s.dx, s.dz)) },
-  uRoomState: { value: ROOMS.map((r) => new THREE.Vector2(IDLE, r.ceil)) },
+  uRoomBox: { value: Array.from({ length: MAX_ROOMS }, () => new THREE.Vector4(-1e4, -1e4, -1e4, -1e4)) },
+  uRoomSweep: { value: Array.from({ length: MAX_ROOMS }, () => new THREE.Vector4(0, 0, 0, 1)) },
+  uRoomState: { value: Array.from({ length: MAX_ROOMS }, () => new THREE.Vector2(IDLE, 3.2)) },
   uSoft: { value: SOFT },
   uInkTone: { value: 0.045 }, // a faint wash on upright faces so the drawing reads as solid
 };
 
 // Clipping planes that remove a room's ink lines behind its sweep front.
 export const SWEEP_PLANES = {};
-ROOMS.forEach((r, i) => {
-  SWEEP_PLANES[r.key] = new THREE.Plane(new THREE.Vector3(SW[i].dx, 0, SW[i].dz), 1e4);
-});
+
+export function configureRoomSweeps(rooms) {
+  currentRooms = rooms;
+  for (let i = 0; i < MAX_ROOMS; i++) {
+    if (i < rooms.length) {
+      const r = rooms[i];
+      const s = sweepOf(r);
+      U.uRoomBox.value[i].set(r.x0, -r.n1, r.x1, -r.n0);
+      U.uRoomSweep.value[i].set(s.ox, s.oz, s.dx, s.dz);
+      U.uRoomState.value[i].set(IDLE, r.ceil);
+      if (!SWEEP_PLANES[r.key]) {
+        SWEEP_PLANES[r.key] = new THREE.Plane(new THREE.Vector3(s.dx, 0, s.dz), 1e4);
+      } else {
+        SWEEP_PLANES[r.key].normal.set(s.dx, 0, s.dz);
+        SWEEP_PLANES[r.key].constant = 1e4;
+      }
+    } else {
+      U.uRoomBox.value[i].set(-1e4, -1e4, -1e4, -1e4);
+      U.uRoomSweep.value[i].set(0, 0, 0, 1);
+      U.uRoomState.value[i].set(IDLE, 0);
+    }
+  }
+}
+
+// Initial configuration
+configureRoomSweeps(GROUND_ROOMS);
 
 // t: 0 = line drawing, 1 = fully material
 export function setRoomReveal(key, t) {
-  const i = ROOMS.findIndex((r) => r.key === key);
-  const s = SW[i];
+  const i = currentRooms.findIndex((r) => r.key === key);
+  if (i < 0) return;
+  const r = currentRooms[i];
+  const s = sweepOf(r);
   const front = t <= 0 ? IDLE : -0.4 + t * (s.len + SOFT + 0.8);
   U.uRoomState.value[i].x = front;
-  SWEEP_PLANES[key].constant = -(s.ox * s.dx + s.oz * s.dz + front);
+  if (SWEEP_PLANES[key]) {
+    SWEEP_PLANES[key].constant = -(s.ox * s.dx + s.oz * s.dz + front);
+  }
 }
 
-const NR = ROOMS.length;
+const NR = MAX_ROOMS;
 
 const DECL = /* glsl */ `
 #define NR ${NR}

@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Casa Larga. A house on one line.</title>
-  <meta name="description" content="Casa Larga, Coll de Marès, Mallorca. A floor plan you can walk into.">
+  <title>Contemporary Residence · 3D Architectural Plan</title>
+  <meta name="description" content="Contemporary Two-Storey Residence. An architectural floor plan you can walk into in full 3D.">
   <link rel="icon" href="data:,">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.css">
   <link rel="stylesheet" href="css/style.css">
   <script type="importmap">
@@ -25,7 +25,23 @@
   <div id="grain" aria-hidden="true"></div>
 
   <header id="bar">
-    <span class="mark">Casa Larga</span>
+    <div class="brand-group">
+      <span class="mark">Residence Plan</span>
+      <!-- Floor Switcher Selector -->
+      <nav id="floor-switcher" aria-label="Floor Selection">
+        <button id="btn-ground" class="floor-btn active" data-floor="ground">
+          <span class="dot"></span>
+          <span class="label">Ground Floor</span>
+          <span class="badge">1 015 sq.ft</span>
+        </button>
+        <button id="btn-first" class="floor-btn" data-floor="first">
+          <span class="dot"></span>
+          <span class="label">First Floor</span>
+          <span class="badge">1 367 sq.ft</span>
+        </button>
+      </nav>
+    </div>
+
     <span id="hud" class="chip" aria-hidden="true">
       <span>LENS <b id="hud-lens">2.0°</b></span>
       <span>HEIGHT <b id="hud-height">1 718 m</b></span>
@@ -34,35 +50,38 @@
   </header>
 
   <section id="hero" class="overlay">
-    <p class="eyebrow">Coll de Marès, Mallorca <span class="wide">&nbsp;·&nbsp; Ground floor plan</span> &nbsp;·&nbsp; A-101</p>
-    <h1><span class="l"><span>A house</span></span><span class="l"><span>on <em>one line.</em></span></span></h1>
-    <p class="lede"><span class="wide">Forty metres from the front door to the tree in the courtyard. </span>This drawing is the building. Scroll and walk into it.</p>
-    <p class="cue"><i></i> Scroll</p>
+    <p class="eyebrow" id="hero-eyebrow">Plot 14, Garden City <span class="wide">&nbsp;·&nbsp; Ground Floor Plan</span> &nbsp;·&nbsp; A-101</p>
+    <h1><span class="l"><span>The Plan</span></span><span class="l"><span>in <em>Real 3D.</em></span></span></h1>
+    <p class="lede" id="hero-lede"><span class="wide">Converted directly from your architectural blueprint drawings. </span>This drawing is the building. Scroll down to watch the walls rise and walk into the rooms.</p>
+    <div class="floor-quick-nav">
+      <span class="key-hint">Press <b>1</b> for Ground Floor · <b>2</b> for First Floor</span>
+    </div>
+    <p class="cue"><i></i> Scroll to rise walls</p>
   </section>
 
   <aside id="cap-lift" class="overlay cap">
-    <p class="no">02 &nbsp; The lift</p>
-    <p class="say">The plan was never a picture. It is the house, cut at 1.2 m. Now the cut rises.</p>
+    <p class="no" id="cap-lift-no">02 &nbsp; The Lift</p>
+    <p class="say" id="cap-lift-say">The blueprint was never just a flat picture. It is the house, cut at 1.2 m. Now the walls rise.</p>
   </aside>
 
   <aside id="cap-fore" class="overlay cap">
-    <p class="no">03 &nbsp; The forecourt</p>
-    <p class="say">Eight metres to the door. Everything ahead is still ink.</p>
+    <p class="no" id="cap-fore-no">03 &nbsp; The Entrance & Car Porch</p>
+    <p class="say" id="cap-fore-say">Approaching through the car porch and covered verandah. The structure unfolds ahead.</p>
   </aside>
 
   <aside id="cap-hall" class="overlay cap">
-    <p class="no">04 &nbsp; Entrance hall &nbsp; 4.00 × 7.00</p>
-    <p class="say">Limestone, oak, lime plaster. The living room is next, and it is still a drawing.</p>
+    <p class="no" id="cap-hall-no">04 &nbsp; Interior Walkthrough &nbsp; 3.66 × 6.22 m</p>
+    <p class="say" id="cap-hall-say">Oak, polished marble, and lime plaster sweep across the living space and staircase.</p>
   </aside>
 
   <nav id="rail" aria-hidden="true">
-    <span data-at="0">01 Sheet</span>
+    <span data-at="0" class="on">01 Sheet</span>
     <span data-at="0.06">02 Lift</span>
-    <span data-at="0.56">03 Forecourt</span>
-    <span data-at="0.8">04 Hall</span>
+    <span data-at="0.56">03 Approach</span>
+    <span data-at="0.8">04 Walk</span>
   </nav>
 
-  <div id="loading"><span>Drawing the plan</span></div>
+  <div id="loading"><span>Drawing architectural plan</span></div>
 
   <main id="track"></main>
 
